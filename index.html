@@ -1,0 +1,1111 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ProofPour — Cocktail Batch Calculator: Party Drink Planner, ABV & Bottle Guide</title>
+<meta name="description" content="ProofPour is a free cocktail batch calculator for parties. Scale any recipe with the 20% dilution rule, check batch ABV with our cocktail ABV calculator, build a bottle shopping list, cost every pour, and plan servings per guest like a pro.">
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Marcellus&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root { --bg:#14090F; --card:#1F0F1A; --card2:#261224; --fuchsia:#E879F9; --amber:#FDE68A; --ink:#F5E9F2; --muted:#C9AEC4; }
+  body { background:var(--bg); color:var(--ink); font-family:'Inter',system-ui,sans-serif; }
+  .font-menu { font-family:'Marcellus',serif; }
+  .menu-card {
+    background:linear-gradient(160deg, var(--card) 0%, var(--card2) 100%);
+    border:1px solid rgba(232,121,249,.28);
+    border-radius:18px;
+    box-shadow:0 10px 40px rgba(0,0,0,.45), inset 0 1px 0 rgba(253,230,138,.08);
+  }
+  .menu-head { border-bottom:2px dotted rgba(253,230,138,.35); }
+  .recipe-btn {
+    border:1px solid rgba(232,121,249,.3); border-radius:14px; background:rgba(20,9,15,.6);
+    transition:transform .12s ease, box-shadow .12s ease, border-color .12s ease;
+  }
+  .recipe-btn:hover { transform:translateY(-2px); border-color:var(--fuchsia); box-shadow:0 8px 24px rgba(232,121,249,.18); }
+  .recipe-btn.selected { border-color:var(--amber); box-shadow:0 0 0 2px rgba(253,230,138,.55), 0 8px 24px rgba(253,230,138,.15); background:rgba(253,230,138,.06); }
+  .field { background:#120710; border:1px solid rgba(232,121,249,.35); border-radius:12px; color:var(--ink); padding:.6rem .8rem; font-weight:600; width:100%; }
+  .field:focus { outline:2px solid rgba(232,121,249,.6); }
+  label.lbl { display:block; font-size:.78rem; font-weight:700; letter-spacing:.08em; text-transform:uppercase; color:var(--muted); margin-bottom:.35rem; }
+  .btn-pour {
+    background:linear-gradient(135deg,#E879F9,#C026D3); color:#14090F; font-weight:800;
+    border-radius:14px; box-shadow:0 6px 24px rgba(232,121,249,.35); transition:transform .1s ease;
+  }
+  .btn-pour:hover { transform:translateY(-2px); }
+  .btn-pour:active { transform:translateY(0); }
+  .btn-ghost { border:1px solid rgba(253,230,138,.5); color:var(--amber); border-radius:12px; font-weight:700; }
+  .btn-ghost:hover { background:rgba(253,230,138,.08); }
+  .stat { background:rgba(20,9,15,.55); border:1px solid rgba(232,121,249,.2); border-radius:14px; }
+  .stat .v { color:var(--amber); }
+  .dotted-leader { border-bottom:2px dotted rgba(253,230,138,.3); }
+  input[type=range] { accent-color:#E879F9; width:100%; }
+  .badge-free { border:2px solid var(--amber); color:var(--amber); border-radius:9999px; letter-spacing:.22em; }
+  .flag-green { border-color:#4ADE80 !important; }
+  .flag-amber { border-color:#FBBF24 !important; }
+  .flag-red { border-color:#F87171 !important; }
+  .faq summary { cursor:pointer; font-weight:700; color:var(--amber); list-style:none; }
+  .faq summary::-webkit-details-marker { display:none; }
+  .faq summary::before { content:"🍸 "; }
+  .faq { border:1px solid rgba(232,121,249,.25); border-radius:14px; background:rgba(20,9,15,.5); padding:1rem; }
+  .faq[open] { border-color:rgba(253,230,138,.5); }
+  .article h2 { font-family:'Marcellus',serif; color:var(--amber); font-size:1.6rem; margin:2.2rem 0 .8rem; }
+  .article p, .article li { color:#EADCE6; line-height:1.75; }
+  .article ul { list-style:disc; padding-left:1.4rem; margin:.6rem 0; }
+  .article p { margin:.7rem 0; }
+  .neon { text-shadow:0 0 24px rgba(232,121,249,.55); }
+  @media print { .no-print { display:none !important; } }
+</style>
+</head>
+<body id="top" class="min-h-screen">
+
+<!-- STICKY HEADER -->
+<header class="no-print sticky top-0 z-50" style="background:rgba(20,9,15,.92);backdrop-filter:blur(10px);border-bottom:1px solid rgba(232,121,249,.3)">
+  <div class="mx-auto max-w-6xl px-4 sm:px-6 h-16 flex items-center justify-between">
+    <a href="#top" class="font-menu text-2xl sm:text-3xl neon" style="color:#E879F9">🍸 ProofPour</a>
+    <nav class="flex items-center gap-4 sm:gap-6 text-sm sm:text-base font-bold">
+      <a href="#top" class="hover:underline" style="color:#F5E9F2">Home</a>
+      <a href="https://fixoraa.tech" class="hover:underline" style="color:#FDE68A">More Tools</a>
+    </nav>
+  </div>
+</header>
+
+<!-- HERO -->
+<section class="no-print mx-auto max-w-6xl px-4 sm:px-6 pt-10 pb-4 text-center">
+  <div class="inline-block badge-free text-xs sm:text-sm font-extrabold px-5 py-2 mb-5">UNLIMITED FREE USAGE</div>
+  <h1 class="font-menu text-4xl sm:text-6xl leading-tight neon" style="color:#E879F9">The Party Cocktail<br>Batch Calculator</h1>
+  <p class="mt-4 text-base sm:text-xl max-w-3xl mx-auto" style="color:#C9AEC4">Pick a classic or build your own house recipe, set your headcount and pour size — ProofPour scales the batch with the <strong style="color:#FDE68A">20% dilution rule</strong>, computes true batch ABV, writes your bottle shopping list, costs every pour, and flags responsible-serving limits. A complete <strong>cocktail batch calculator</strong>, <strong>cocktail ABV calculator</strong>, and <strong>party drink planner</strong> for servings that actually land.</p>
+</section>
+
+<!-- TOP AD (verbatim) -->
+<div class="no-print mx-auto max-w-6xl px-4 sm:px-6 pt-4" role="complementary" aria-label="Advertisement">
+  <div class="mx-auto text-center" style="max-width:728px">
+    <span class="block text-[10px] tracking-[0.18em] uppercase text-slate-400 mb-1.5">Advertisement</span>
+    <div class="flex justify-center overflow-hidden">
+      <div class="origin-top scale-[0.44] sm:scale-100 shrink-0">
+        <script>
+          atOptions = { 'key' : '4e68ac77881c17fe128a46565d9a4e8c', 'format' : 'iframe', 'height' : 90, 'width' : 728, 'params' : {} };
+        </script>
+        <script src="https://www.highrevenueformat.com/4e68ac77881c17fe128a46565d9a4e8c/invoke.js"></script>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ============ THE BATCH MENU ============ -->
+<main class="mx-auto max-w-6xl px-4 sm:px-6 py-8">
+  <div class="text-center mb-8">
+    <div class="font-menu text-sm tracking-[0.35em] uppercase" style="color:#FDE68A">★ Tonight's Batch Menu ★</div>
+    <div class="font-menu text-2xl sm:text-3xl mt-2" style="color:#F5E9F2">Build your party pour</div>
+  </div>
+
+  <!-- RECIPE MENU CARD -->
+  <section class="menu-card p-5 sm:p-8 mb-6">
+    <div class="menu-head pb-4 mb-5 flex items-center justify-between flex-wrap gap-3">
+      <h2 class="font-menu text-xl sm:text-2xl" style="color:#FDE68A">① Choose your cocktail</h2>
+      <label class="flex items-center gap-2 text-sm font-bold cursor-pointer" style="color:#C9AEC4">
+        <input type="checkbox" id="custom-toggle" class="w-4 h-4" style="accent-color:#E879F9"> Custom house recipe
+      </label>
+    </div>
+    <div id="recipe-grid" class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3"></div>
+
+    <!-- CUSTOM RECIPE EDITOR -->
+    <div id="custom-card" class="hidden mt-6 p-4 rounded-2xl" style="background:rgba(20,9,15,.6);border:1px dashed rgba(253,230,138,.45)">
+      <div class="flex items-center justify-between mb-3 flex-wrap gap-2">
+        <h3 class="font-menu text-lg" style="color:#FDE68A">House recipe editor</h3>
+        <button id="add-ingredient" class="btn-ghost text-sm px-4 py-2">+ Add ingredient</button>
+      </div>
+      <div class="grid grid-cols-12 gap-2 text-xs font-bold uppercase tracking-wider mb-1" style="color:#C9AEC4">
+        <div class="col-span-6 sm:col-span-6">Ingredient</div>
+        <div class="col-span-3 sm:col-span-3">ABV %</div>
+        <div class="col-span-3 sm:col-span-3">ml / serving</div>
+      </div>
+      <div id="custom-ingredients" class="space-y-2"></div>
+      <p class="text-xs mt-3" style="color:#C9AEC4">Tip: juices, syrups and sodas are 0% ABV. Spirits are usually 35–50%.</p>
+    </div>
+  </section>
+
+  <!-- PARTY SETUP CARD -->
+  <section class="menu-card p-5 sm:p-8 mb-6">
+    <div class="menu-head pb-4 mb-5">
+      <h2 class="font-menu text-xl sm:text-2xl" style="color:#FDE68A">② Set the party</h2>
+    </div>
+    <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
+      <div>
+        <label class="lbl" for="guests">Guests</label>
+        <input type="number" id="guests" class="field" min="1" max="100000" value="20">
+      </div>
+      <div>
+        <label class="lbl" for="drinks-per-guest">Drinks per guest</label>
+        <input type="number" id="drinks-per-guest" class="field" min="0.5" max="30" step="0.5" value="2">
+      </div>
+      <div>
+        <label class="lbl" for="serving-size">Serving size</label>
+        <select id="serving-size" class="field">
+          <option value="tasting">Tasting pour (0.6×)</option>
+          <option value="classic" selected>Classic pour (1×)</option>
+          <option value="generous">Generous pour (1.5×)</option>
+        </select>
+      </div>
+      <div>
+        <label class="lbl" for="std-drink">Standard drink</label>
+        <select id="std-drink" class="field">
+          <option value="14" selected>US — 14 g alcohol</option>
+          <option value="10">AU — 10 g alcohol</option>
+          <option value="8">UK — 8 g alcohol</option>
+        </select>
+      </div>
+    </div>
+    <div class="mt-5 grid sm:grid-cols-2 gap-4 items-end">
+      <div>
+        <label class="lbl" for="dilution">Dilution rule: <span id="dilution-val" style="color:#FDE68A">20%</span> <span class="normal-case font-medium">(ice-melt water added up front)</span></label>
+        <input type="range" id="dilution" min="0" max="40" step="1" value="20">
+        <p class="text-xs mt-1" style="color:#C9AEC4">Shaken/stirred classics land near 20%. Built highballs can go lower.</p>
+      </div>
+      <div>
+        <label class="lbl" for="currency">Currency</label>
+        <select id="currency" class="field">
+          <option value="$" selected>$ — USD</option>
+          <option value="€">€ — EUR</option>
+          <option value="£">£ — GBP</option>
+          <option value="₹">₹ — INR</option>
+        </select>
+      </div>
+    </div>
+    <div class="mt-6 flex flex-wrap gap-3">
+      <button id="calc-btn" class="btn-pour text-lg px-8 py-3">🍹 Calculate my batch</button>
+      <button id="copy-plan" class="btn-ghost px-6 py-3 hidden">📋 Copy plan</button>
+    </div>
+    <p id="calc-hint" class="hidden text-sm mt-3 font-semibold" style="color:#F87171"></p>
+  </section>
+
+  <!-- RESULTS -->
+  <div id="results" class="hidden space-y-6">
+
+    <!-- BATCH CARD -->
+    <section class="menu-card p-5 sm:p-8">
+      <div class="menu-head pb-4 mb-5">
+        <h2 class="font-menu text-xl sm:text-2xl" style="color:#FDE68A">③ Your batch <span id="res-recipe" class="text-base" style="color:#C9AEC4"></span></h2>
+      </div>
+      <div class="grid grid-cols-2 lg:grid-cols-4 gap-3 mb-6">
+        <div class="stat p-4 text-center"><div class="text-xs font-bold uppercase tracking-wider" style="color:#C9AEC4">Servings</div><div class="v font-menu text-3xl" id="batch-servings">–</div></div>
+        <div class="stat p-4 text-center"><div class="text-xs font-bold uppercase tracking-wider" style="color:#C9AEC4">Batch volume</div><div class="v font-menu text-3xl" id="batch-volume">–</div></div>
+        <div class="stat p-4 text-center"><div class="text-xs font-bold uppercase tracking-wider" style="color:#C9AEC4">Batch ABV</div><div class="v font-menu text-3xl" id="batch-abv">–</div></div>
+        <div class="stat p-4 text-center"><div class="text-xs font-bold uppercase tracking-wider" style="color:#C9AEC4">Std drinks</div><div class="v font-menu text-3xl" id="batch-std">–</div></div>
+      </div>
+      <div id="dilution-note" class="p-4 rounded-xl text-sm leading-relaxed mb-6" style="background:rgba(232,121,249,.07);border:1px solid rgba(232,121,249,.3);color:#EADCE6"></div>
+      <h3 class="font-menu text-lg mb-3" style="color:#FDE68A">Per-ingredient pour</h3>
+      <div id="ingredient-breakdown" class="space-y-2"></div>
+    </section>
+
+    <!-- SHOPPING LIST CARD -->
+    <section class="menu-card p-5 sm:p-8">
+      <div class="menu-head pb-4 mb-5">
+        <h2 class="font-menu text-xl sm:text-2xl" style="color:#FDE68A">④ Bottle shopping list</h2>
+        <p class="text-sm mt-1" style="color:#C9AEC4">Rounded up so you never run dry mid-party. Enter bottle prices to cost the batch.</p>
+      </div>
+      <div id="shopping-list" class="space-y-3"></div>
+    </section>
+
+    <!-- COST CARD -->
+    <section class="menu-card p-5 sm:p-8">
+      <div class="menu-head pb-4 mb-5">
+        <h2 class="font-menu text-xl sm:text-2xl" style="color:#FDE68A">⑤ Cost per pour</h2>
+      </div>
+      <div class="grid grid-cols-2 lg:grid-cols-3 gap-3 mb-6">
+        <div class="stat p-4 text-center"><div class="text-xs font-bold uppercase tracking-wider" style="color:#C9AEC4">Total batch cost</div><div class="v font-menu text-3xl" id="total-cost">–</div></div>
+        <div class="stat p-4 text-center"><div class="text-xs font-bold uppercase tracking-wider" style="color:#C9AEC4">Cost per drink</div><div class="v font-menu text-3xl" id="cost-per-drink">–</div></div>
+        <div class="stat p-4 text-center"><div class="text-xs font-bold uppercase tracking-wider" style="color:#C9AEC4">Cost per std drink</div><div class="v font-menu text-2xl pt-1" id="cost-per-std">–</div></div>
+      </div>
+      <div class="p-4 rounded-xl" style="background:rgba(20,9,15,.55);border:1px solid rgba(253,230,138,.3)">
+        <h3 class="font-menu text-lg mb-3" style="color:#FDE68A">Pour-cost margin calculator</h3>
+        <div class="grid sm:grid-cols-3 gap-4">
+          <div>
+            <label class="lbl" for="menu-price">Menu price / drink</label>
+            <input type="number" id="menu-price" class="field" min="0" step="0.5" value="8">
+          </div>
+          <div>
+            <label class="lbl" for="target-pour">Target pour cost %</label>
+            <input type="number" id="target-pour" class="field" min="1" max="95" step="1" value="20">
+          </div>
+          <div class="flex items-end">
+            <button id="price-recalc" class="btn-ghost px-5 py-2.5 w-full">Recalculate</button>
+          </div>
+        </div>
+        <div class="grid grid-cols-2 lg:grid-cols-4 gap-3 mt-4">
+          <div class="stat p-3 text-center"><div class="text-xs font-bold uppercase" style="color:#C9AEC4">Pour cost</div><div class="v font-menu text-2xl" id="pour-cost-pct">–</div></div>
+          <div class="stat p-3 text-center"><div class="text-xs font-bold uppercase" style="color:#C9AEC4">Margin</div><div class="v font-menu text-2xl" id="margin-pct">–</div></div>
+          <div class="stat p-3 text-center"><div class="text-xs font-bold uppercase" style="color:#C9AEC4">Profit / drink</div><div class="v font-menu text-2xl" id="profit-per-drink">–</div></div>
+          <div class="stat p-3 text-center"><div class="text-xs font-bold uppercase" style="color:#C9AEC4">Price for target</div><div class="v font-menu text-2xl" id="recommended-price">–</div></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- RESPONSIBLE SERVING CARD -->
+    <section id="serving-flag" class="menu-card p-5 sm:p-8" style="border-width:2px">
+      <div class="menu-head pb-4 mb-5">
+        <h2 class="font-menu text-xl sm:text-2xl" style="color:#FDE68A">⑥ Responsible-serving flag</h2>
+      </div>
+      <div class="flex items-start gap-4 flex-wrap">
+        <div id="flag-badge" class="font-extrabold text-sm uppercase tracking-widest px-4 py-2 rounded-full" style="border:2px solid">–</div>
+        <div class="flex-1 min-w-[240px]">
+          <div id="flag-level" class="font-menu text-xl mb-1" style="color:#F5E9F2">–</div>
+          <p id="flag-message" class="text-sm leading-relaxed" style="color:#EADCE6">–</p>
+          <p class="text-sm mt-2" style="color:#C9AEC4">Average per guest: <strong id="flag-per-guest" style="color:#FDE68A">–</strong> standard drinks · suggested pace: <strong id="flag-pace" style="color:#FDE68A">–</strong></p>
+        </div>
+      </div>
+      <ul id="flag-tips" class="mt-4 space-y-2 text-sm" style="color:#EADCE6"></ul>
+    </section>
+  </div>
+</main>
+
+<!-- PURE LOGIC LIB (inlined at build time) -->
+<script id="v3-proofpour-cocktail-batch-lib">
+'use strict';
+/**
+ * ProofPour — party cocktail batch planner (pure logic, no DOM).
+ * All functions are pure: same inputs -> same outputs, no document/window.
+ */
+
+var PROOFPOUR = PROOFPOUR || {};
+
+PROOFPOUR.DILUTION_PCT = 20;        // classic shaken/stirred dilution rule
+PROOFPOUR.ALCOHOL_DENSITY = 0.789;  // g per ml of pure ethanol
+PROOFPOUR.US_STANDARD_DRINK_G = 14; // US standard drink = 14 g pure alcohol
+PROOFPOUR.METABOLISM_G_PER_HOUR = 10; // ~one US drink per hour
+
+/**
+ * Built-in classic recipes. amounts are ml per single serving at
+ * "Classic" pour size; abv is % alcohol by volume (0 for mixers/juices).
+ */
+PROOFPOUR.RECIPES = [
+  {
+    id: 'negroni', name: 'Negroni', style: 'Stirred',
+    ingredients: [
+      { name: 'Gin', abv: 40, ml: 30 },
+      { name: 'Campari', abv: 25, ml: 30 },
+      { name: 'Sweet vermouth', abv: 18, ml: 30 }
+    ]
+  },
+  {
+    id: 'margarita', name: 'Margarita', style: 'Shaken',
+    ingredients: [
+      { name: 'Blanco tequila', abv: 40, ml: 50 },
+      { name: 'Triple sec', abv: 40, ml: 20 },
+      { name: 'Fresh lime juice', abv: 0, ml: 20 }
+    ]
+  },
+  {
+    id: 'old-fashioned', name: 'Old Fashioned', style: 'Stirred',
+    ingredients: [
+      { name: 'Bourbon', abv: 45, ml: 60 },
+      { name: 'Simple syrup', abv: 0, ml: 7.5 },
+      { name: 'Angostura bitters', abv: 44.7, ml: 2.5 }
+    ]
+  },
+  {
+    id: 'daiquiri', name: 'Daiquiri', style: 'Shaken',
+    ingredients: [
+      { name: 'White rum', abv: 40, ml: 60 },
+      { name: 'Fresh lime juice', abv: 0, ml: 20 },
+      { name: 'Simple syrup', abv: 0, ml: 15 }
+    ]
+  },
+  {
+    id: 'aperol-spritz', name: 'Aperol Spritz', style: 'Built',
+    ingredients: [
+      { name: 'Prosecco', abv: 11, ml: 90 },
+      { name: 'Aperol', abv: 11, ml: 60 },
+      { name: 'Soda water', abv: 0, ml: 30 }
+    ]
+  },
+  {
+    id: 'moscow-mule', name: 'Moscow Mule', style: 'Built',
+    ingredients: [
+      { name: 'Vodka', abv: 40, ml: 45 },
+      { name: 'Ginger beer', abv: 0, ml: 120 },
+      { name: 'Fresh lime juice', abv: 0, ml: 15 }
+    ]
+  },
+  {
+    id: 'mojito', name: 'Mojito', style: 'Built',
+    ingredients: [
+      { name: 'White rum', abv: 40, ml: 50 },
+      { name: 'Fresh lime juice', abv: 0, ml: 25 },
+      { name: 'Simple syrup', abv: 0, ml: 10 },
+      { name: 'Soda water', abv: 0, ml: 75 }
+    ]
+  },
+  {
+    id: 'cosmopolitan', name: 'Cosmopolitan', style: 'Shaken',
+    ingredients: [
+      { name: 'Vodka', abv: 40, ml: 40 },
+      { name: 'Triple sec', abv: 40, ml: 15 },
+      { name: 'Cranberry juice', abv: 0, ml: 30 },
+      { name: 'Fresh lime juice', abv: 0, ml: 10 }
+    ]
+  },
+  {
+    id: 'manhattan', name: 'Manhattan', style: 'Stirred',
+    ingredients: [
+      { name: 'Rye whiskey', abv: 45, ml: 60 },
+      { name: 'Sweet vermouth', abv: 18, ml: 30 },
+      { name: 'Angostura bitters', abv: 44.7, ml: 2 }
+    ]
+  },
+  {
+    id: 'gin-tonic', name: 'Gin & Tonic', style: 'Built',
+    ingredients: [
+      { name: 'Gin', abv: 40, ml: 50 },
+      { name: 'Tonic water', abv: 0, ml: 150 },
+      { name: 'Fresh lime juice', abv: 0, ml: 10 }
+    ]
+  }
+];
+
+/** Pour-size presets: multiplier applied to every ingredient per serving. */
+PROOFPOUR.SERVING_SIZES = [
+  { id: 'tasting', label: 'Tasting pour', factor: 0.6 },
+  { id: 'classic', label: 'Classic pour', factor: 1.0 },
+  { id: 'generous', label: 'Generous pour', factor: 1.5 }
+];
+
+/**
+ * Sanitize a numeric input. Returns fallback when missing/invalid.
+ */
+function sanitizeNumber(value, fallback, opts) {
+  opts = opts || {};
+  var n = Number(value);
+  if (!isFinite(n)) return fallback;
+  if (opts.min !== undefined && n < opts.min) return opts.min;
+  if (opts.max !== undefined && n > opts.max) return opts.max;
+  return n;
+}
+
+/** Find a built-in recipe by id (case-insensitive). Returns null when missing. */
+function recipeById(id) {
+  if (id === undefined || id === null) return null;
+  var key = String(id).toLowerCase();
+  for (var i = 0; i < PROOFPOUR.RECIPES.length; i++) {
+    if (PROOFPOUR.RECIPES[i].id === key) return PROOFPOUR.RECIPES[i];
+  }
+  return null;
+}
+
+/** List all built-in recipe ids + names. */
+function listRecipes() {
+  return PROOFPOUR.RECIPES.map(function (r) {
+    return { id: r.id, name: r.name, style: r.style };
+  });
+}
+
+/**
+ * Validate/normalize a recipe object (built-in or custom).
+ * ingredients: [{name, abv (%), ml per serving}].
+ * Returns a clean copy; never throws.
+ */
+function normalizeRecipe(recipe) {
+  var out = { name: 'Custom cocktail', style: 'Custom', ingredients: [] };
+  if (recipe && typeof recipe.name === 'string' && recipe.name.trim()) {
+    out.name = recipe.name.trim();
+  }
+  if (recipe && typeof recipe.style === 'string' && recipe.style.trim()) {
+    out.style = recipe.style.trim();
+  }
+  var list = (recipe && recipe.ingredients) || [];
+  for (var i = 0; i < list.length; i++) {
+    var ing = list[i] || {};
+    var ml = sanitizeNumber(ing.ml, 0, { min: 0, max: 2000 });
+    var abv = sanitizeNumber(ing.abv, 0, { min: 0, max: 100 });
+    var nm = typeof ing.name === 'string' && ing.name.trim() ? ing.name.trim() : 'Ingredient ' + (i + 1);
+    if (ml > 0) out.ingredients.push({ name: nm, abv: abv, ml: ml });
+  }
+  return out;
+}
+
+/** Pour size factor lookup; unknown id -> 1.0 (Classic). */
+function servingFactor(sizeId) {
+  var key = String(sizeId || 'classic').toLowerCase();
+  for (var i = 0; i < PROOFPOUR.SERVING_SIZES.length; i++) {
+    if (PROOFPOUR.SERVING_SIZES[i].id === key) return PROOFPOUR.SERVING_SIZES[i].factor;
+  }
+  return 1.0;
+}
+
+/**
+ * Scale a recipe to a number of servings with a pour-size factor.
+ * Returns { servings, factor, ingredients:[{name, abv, ml}], totalLiquidMl, singleServeMl }.
+ */
+function scaleRecipe(recipe, servings, sizeId) {
+  var r = normalizeRecipe(recipe);
+  var n = Math.max(0, Math.floor(sanitizeNumber(servings, 0, { min: 0, max: 100000 })));
+  var factor = servingFactor(sizeId);
+  var items = [];
+  var total = 0;
+  var single = 0;
+  for (var i = 0; i < r.ingredients.length; i++) {
+    var ing = r.ingredients[i];
+    var perServe = ing.ml * factor;
+    single += perServe;
+    var ml = perServe * n;
+    total += ml;
+    items.push({ name: ing.name, abv: ing.abv, mlPerServing: perServe, ml: ml });
+  }
+  return {
+    servings: n,
+    factor: factor,
+    recipeName: r.name,
+    style: r.style,
+    ingredients: items,
+    totalLiquidMl: total,
+    singleServeMl: single
+  };
+}
+
+/**
+ * 20% dilution rule: a properly shaken/stirred cocktail ends up ~20% water
+ * by volume from ice melt. To pre-batch faithfully, add that water up front.
+ * dilPct = final share of water (0-40). total = liquid / (1 - dilPct/100).
+ * So 20% dilution increases total volume by exactly 25%.
+ * Returns { waterMl, totalMl, dilPct }.
+ */
+function applyDilution(totalLiquidMl, dilPct) {
+  var liquid = Math.max(0, sanitizeNumber(totalLiquidMl, 0, { min: 0, max: 1e9 }));
+  var pct = sanitizeNumber(dilPct, PROOFPOUR.DILUTION_PCT, { min: 0, max: 40 });
+  var total = liquid / (1 - pct / 100);
+  return { waterMl: total - liquid, totalMl: total, dilPct: pct };
+}
+
+/** Pure alcohol volume (ml) in an ingredient list [{abv, ml}]. */
+function pureAlcoholMl(ingredients) {
+  var sum = 0;
+  for (var i = 0; i < ingredients.length; i++) {
+    var ing = ingredients[i] || {};
+    sum += sanitizeNumber(ing.ml, 0, { min: 0 }) * sanitizeNumber(ing.abv, 0, { min: 0, max: 100 }) / 100;
+  }
+  return sum;
+}
+
+/**
+ * Batch ABV before and after dilution water is added.
+ * Returns { abvBefore, abvAfter, totalLiquidMl, waterMl, totalMl } (%).
+ */
+function batchABV(ingredients, waterMl) {
+  var totalLiquid = 0;
+  for (var i = 0; i < ingredients.length; i++) totalLiquid += sanitizeNumber(ingredients[i].ml, 0, { min: 0 });
+  var water = Math.max(0, sanitizeNumber(waterMl, 0, { min: 0 }));
+  var alcohol = pureAlcoholMl(ingredients);
+  var total = totalLiquid + water;
+  return {
+    abvBefore: totalLiquid > 0 ? (alcohol / totalLiquid) * 100 : 0,
+    abvAfter: total > 0 ? (alcohol / total) * 100 : 0,
+    totalLiquidMl: totalLiquid,
+    waterMl: water,
+    totalMl: total
+  };
+}
+
+/**
+ * Convert pure alcohol (ml) into standard drinks.
+ * gramsPerDrink default 14 (US); 8 for UK units, 10 for AU.
+ */
+function standardDrinks(alcoholMl, gramsPerDrink) {
+  var g = sanitizeNumber(gramsPerDrink, PROOFPOUR.US_STANDARD_DRINK_G, { min: 1, max: 50 });
+  var grams = Math.max(0, sanitizeNumber(alcoholMl, 0, { min: 0 })) * PROOFPOUR.ALCOHOL_DENSITY;
+  return grams / g;
+}
+
+/**
+ * Bottle shopping list: how many bottles of each ingredient to buy.
+ * Rule: single bottle if the total fits in the smallest common size;
+ * otherwise standard 750 ml bottles, always rounded UP so you never run dry.
+ * sizes default [375, 750, 1000, 1750].
+ * Returns [{ name, totalMl, bottleMl, count, label, wasteMl }].
+ */
+function bottleList(ingredientTotals, sizes) {
+  var bottleSizes = (sizes && sizes.length) ? sizes.slice() : [375, 750, 1000, 1750];
+  bottleSizes.sort(function (a, b) { return a - b; });
+  var out = [];
+  for (var i = 0; i < ingredientTotals.length; i++) {
+    var ing = ingredientTotals[i] || {};
+    var need = Math.max(0, sanitizeNumber(ing.ml, 0, { min: 0 }));
+    if (need <= 0) continue;
+    var bottleMl = 750;
+    var fit = null;
+    for (var s = 0; s < bottleSizes.length; s++) {
+      if (bottleSizes[s] >= need) { fit = bottleSizes[s]; break; }
+    }
+    if (fit !== null) {
+      bottleMl = fit;
+      out.push({
+        name: ing.name, totalMl: need, bottleMl: bottleMl, count: 1,
+        label: '1 × ' + formatBottle(bottleMl) + ' bottle of ' + ing.name,
+        wasteMl: bottleMl - need
+      });
+    } else {
+      var count = Math.ceil(need / 750);
+      out.push({
+        name: ing.name, totalMl: need, bottleMl: 750, count: count,
+        label: count + ' × 750 ml bottles of ' + ing.name,
+        wasteMl: count * 750 - need
+      });
+    }
+  }
+  return out;
+}
+
+/** '1750 ml' -> '1.75 L', '750 ml' stays '750 ml'. */
+function formatBottle(ml) {
+  return ml >= 1000 ? (ml / 1000).toFixed(2).replace(/0+$/, '').replace(/\.$/, '') + ' L' : ml + ' ml';
+}
+
+/**
+ * Cost estimate from the shopping list.
+ * prices: { ingredientName: pricePerBottle }. Missing prices -> 0.
+ * Returns { totalCost, costPerServing, costPerStdDrink, lines:[{name, count, bottleMl, unitPrice, lineCost}] }.
+ */
+function costEstimate(shoppingList, prices, servings, totalStdDrinks) {
+  prices = prices || {};
+  var lines = [];
+  var total = 0;
+  for (var i = 0; i < shoppingList.length; i++) {
+    var item = shoppingList[i];
+    var unit = sanitizeNumber(prices[item.name], 0, { min: 0, max: 1e6 });
+    var lineCost = unit * item.count;
+    total += lineCost;
+    lines.push({ name: item.name, count: item.count, bottleMl: item.bottleMl, unitPrice: unit, lineCost: lineCost });
+  }
+  var sv = Math.max(0, sanitizeNumber(servings, 0, { min: 0 }));
+  var sd = Math.max(0, sanitizeNumber(totalStdDrinks, 0, { min: 0 }));
+  return {
+    totalCost: total,
+    costPerServing: sv > 0 ? total / sv : 0,
+    costPerStdDrink: sd > 0 ? total / sd : 0,
+    lines: lines
+  };
+}
+
+/**
+ * Pour-cost margin calculator for bar pricing.
+ * costPerDrink + menuPrice -> { pourCostPct, marginPct, profitPerDrink }.
+ */
+function pourCost(costPerDrink, menuPrice) {
+  var cost = Math.max(0, sanitizeNumber(costPerDrink, 0, { min: 0, max: 1e6 }));
+  var price = Math.max(0, sanitizeNumber(menuPrice, 0, { min: 0, max: 1e6 }));
+  var pourCostPct = price > 0 ? (cost / price) * 100 : 0;
+  return {
+    pourCostPct: pourCostPct,
+    marginPct: 100 - pourCostPct,
+    profitPerDrink: price - cost
+  };
+}
+
+/**
+ * Recommended menu price to hit a target pour-cost percentage.
+ * price = cost / (targetPct / 100). Default target 20%.
+ */
+function recommendedPrice(costPerDrink, targetPourCostPct) {
+  var cost = Math.max(0, sanitizeNumber(costPerDrink, 0, { min: 0, max: 1e6 }));
+  var target = sanitizeNumber(targetPourCostPct, 20, { min: 1, max: 95 });
+  return cost / (target / 100);
+}
+
+/**
+ * Responsible-serving flag.
+ * stdDrinksPerGuest -> { level: 'green'|'amber'|'red', title, message, tips, pacingHours }.
+ * pacingHours: hours to pace the drinks at ~1 standard drink/hour.
+ */
+function responsibleServing(stdDrinksPerGuest) {
+  var d = Math.max(0, sanitizeNumber(stdDrinksPerGuest, 0, { min: 0, max: 1000 }));
+  var out = { drinksPerGuest: d, pacingHours: Math.ceil(d) };
+  if (d <= 2) {
+    out.level = 'green';
+    out.title = 'Within the social zone';
+    out.message = 'Up to 2 standard drinks per guest is a comfortable, low-risk party pace. Keep water on the table and food within reach.';
+  } else if (d <= 4) {
+    out.level = 'amber';
+    out.title = 'Pace it — amber zone';
+    out.message = 'This plan averages 2–4 standard drinks per guest. Space pours at least an hour apart, keep plenty of water and food going, and watch for guests who have had enough.';
+  } else {
+    out.level = 'red';
+    out.title = 'Over the line — red flag';
+    out.message = 'More than 4 standard drinks per guest is binge-level territory for a single session. Consider smaller pours, a longer party window, or scaling the plan back before anyone pours.';
+  }
+  out.tips = [
+    'Put water bottles on every table — one glass of water between rounds is the oldest trick in the book.',
+    'Serve real food early; an empty stomach roughly doubles how fast alcohol hits.',
+    'Line up designated drivers or ride-share credit before the first pour, not after the last one.',
+    'Nobody under 21 (or your local legal age). Check IDs at the door if the crowd is mixed.',
+    'It takes about an hour to metabolize one standard drink — the clock, not coffee, sobers people up.'
+  ];
+  return out;
+}
+
+/**
+ * One-call party plan: recipe + guests + drinks-per-guest + pour size +
+ * dilution% -> everything the UI needs.
+ * opts: { sizeId, dilPct, gramsPerDrink, prices, bottleSizes }.
+ */
+function fullPlan(recipe, guests, drinksPerGuest, opts) {
+  opts = opts || {};
+  var g = Math.max(0, Math.floor(sanitizeNumber(guests, 0, { min: 0, max: 100000 })));
+  var dpg = Math.max(0, sanitizeNumber(drinksPerGuest, 0, { min: 0, max: 100 }));
+  var servings = g * dpg;
+  var scaled = scaleRecipe(recipe, servings, opts.sizeId);
+  var dil = applyDilution(scaled.totalLiquidMl, opts.dilPct === undefined ? PROOFPOUR.DILUTION_PCT : opts.dilPct);
+  var abv = batchABV(scaled.ingredients, dil.waterMl);
+  var alcoholMl = pureAlcoholMl(scaled.ingredients);
+  var gramsPerDrink = sanitizeNumber(opts.gramsPerDrink, PROOFPOUR.US_STANDARD_DRINK_G, { min: 1, max: 50 });
+  var totalStd = standardDrinks(alcoholMl, gramsPerDrink);
+  var perGuest = g > 0 ? totalStd / g : 0;
+  var bottles = bottleList(scaled.ingredients, opts.bottleSizes);
+  var costs = costEstimate(bottles, opts.prices, servings, totalStd);
+  var flag = responsibleServing(perGuest);
+  return {
+    guests: g,
+    drinksPerGuest: dpg,
+    servings: servings,
+    recipeName: scaled.recipeName,
+    style: scaled.style,
+    scaled: scaled,
+    dilution: dil,
+    abv: abv,
+    alcoholMl: alcoholMl,
+    totalStdDrinks: totalStd,
+    stdDrinksPerGuest: perGuest,
+    bottles: bottles,
+    costs: costs,
+    flag: flag,
+    gramsPerDrink: gramsPerDrink
+  };
+}
+
+// Exports for Node tests.
+if (typeof module !== 'undefined' && module.exports) {
+  module.exports = {
+    PROOFPOUR: PROOFPOUR,
+    sanitizeNumber: sanitizeNumber,
+    recipeById: recipeById,
+    listRecipes: listRecipes,
+    normalizeRecipe: normalizeRecipe,
+    servingFactor: servingFactor,
+    scaleRecipe: scaleRecipe,
+    applyDilution: applyDilution,
+    pureAlcoholMl: pureAlcoholMl,
+    batchABV: batchABV,
+    standardDrinks: standardDrinks,
+    bottleList: bottleList,
+    formatBottle: formatBottle,
+    costEstimate: costEstimate,
+    pourCost: pourCost,
+    recommendedPrice: recommendedPrice,
+    responsibleServing: responsibleServing,
+    fullPlan: fullPlan
+  };
+}
+
+</script>
+
+<!-- UI WIRING (separate from the pure lib) -->
+<script>
+(function () {
+  'use strict';
+  var state = { recipeId: 'negroni', custom: false, lastPlan: null };
+  var $ = function (id) { return document.getElementById(id); };
+
+  function money(n) {
+    var cur = $('currency').value;
+    return cur + n.toFixed(2);
+  }
+  function fmtMl(n) {
+    if (n >= 1000) return (n / 1000).toFixed(2) + ' L';
+    return Math.round(n) + ' ml';
+  }
+
+  /* ---------- recipe menu ---------- */
+  function renderRecipes() {
+    var grid = $('recipe-grid');
+    grid.innerHTML = '';
+    listRecipes().forEach(function (r) {
+      var full = recipeById(r.id);
+      var abv = batchABV(full.ingredients.map(function (i) { return { ml: i.ml, abv: i.abv }; }), 0).abvBefore;
+      var b = document.createElement('button');
+      b.type = 'button';
+      b.className = 'recipe-btn p-3 text-left' + (state.recipeId === r.id && !state.custom ? ' selected' : '');
+      b.setAttribute('data-recipe', r.id);
+      b.innerHTML =
+        '<div class="font-menu text-base" style="color:#FDE68A">' + escapeHtml(r.name) + '</div>' +
+        '<div class="text-xs mt-1" style="color:#C9AEC4">' + escapeHtml(r.style) + ' · ' + abv.toFixed(1) + '% ABV</div>';
+      b.addEventListener('click', function () {
+        state.recipeId = r.id; state.custom = false;
+        $('custom-toggle').checked = false; $('custom-card').classList.add('hidden');
+        renderRecipes();
+      });
+      grid.appendChild(b);
+    });
+  }
+  function escapeHtml(s) {
+    return String(s).replace(/[&<>"']/g, function (c) {
+      return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c];
+    });
+  }
+
+  /* ---------- custom recipe editor ---------- */
+  var MAX_ROWS = 8;
+  function addIngredientRow(name, abv, ml) {
+    var wrap = $('custom-ingredients');
+    if (wrap.children.length >= MAX_ROWS) return;
+    var row = document.createElement('div');
+    row.className = 'grid grid-cols-12 gap-2 crow';
+    row.innerHTML =
+      '<div class="col-span-6"><input type="text" class="field cname" placeholder="e.g. White rum" value="' + escapeHtml(name || '') + '"></div>' +
+      '<div class="col-span-3"><input type="number" class="field cabv" min="0" max="100" step="0.1" placeholder="40" value="' + escapeHtml(abv === undefined ? '' : abv) + '"></div>' +
+      '<div class="col-span-2"><input type="number" class="field cml" min="0" max="2000" step="5" placeholder="50" value="' + escapeHtml(ml === undefined ? '' : ml) + '"></div>' +
+      '<div class="col-span-1"><button type="button" class="btn-ghost w-full py-2 crem" title="Remove">×</button></div>';
+    row.querySelector('.crem').addEventListener('click', function () { row.remove(); });
+    wrap.appendChild(row);
+  }
+  function readCustomRecipe() {
+    var rows = document.querySelectorAll('#custom-ingredients .crow');
+    var ings = [];
+    rows.forEach(function (row) {
+      ings.push({
+        name: row.querySelector('.cname').value,
+        abv: row.querySelector('.cabv').value,
+        ml: row.querySelector('.cml').value
+      });
+    });
+    return normalizeRecipe({ name: 'House recipe', style: 'Custom', ingredients: ings });
+  }
+
+  /* ---------- calculation ---------- */
+  function getRecipe() {
+    if (state.custom) return readCustomRecipe();
+    return normalizeRecipe(recipeById(state.recipeId));
+  }
+  function readPrices() {
+    var prices = {};
+    document.querySelectorAll('.price-input').forEach(function (el) {
+      prices[el.getAttribute('data-name')] = Number(el.value) || 0;
+    });
+    return prices;
+  }
+  function calculate() {
+    var hint = $('calc-hint');
+    hint.classList.add('hidden');
+    var recipe = getRecipe();
+    if (!recipe.ingredients.length) {
+      hint.textContent = 'Add at least one ingredient to your house recipe first.';
+      hint.classList.remove('hidden');
+      return;
+    }
+    var guests = Number($('guests').value);
+    var dpg = Number($('drinks-per-guest').value);
+    if (!isFinite(guests) || guests < 1) {
+      hint.textContent = 'Enter at least 1 guest to plan a batch.';
+      hint.classList.remove('hidden');
+      return;
+    }
+    if (!isFinite(dpg) || dpg <= 0) {
+      hint.textContent = 'Drinks per guest must be above zero.';
+      hint.classList.remove('hidden');
+      return;
+    }
+    var plan = fullPlan(recipe, guests, dpg, {
+      sizeId: $('serving-size').value,
+      dilPct: Number($('dilution').value),
+      gramsPerDrink: Number($('std-drink').value),
+      prices: readPrices()
+    });
+    state.lastPlan = plan;
+    renderResults(plan);
+    $('results').classList.remove('hidden');
+    $('copy-plan').classList.remove('hidden');
+    $('results').scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+
+  function renderResults(p) {
+    $('res-recipe').textContent = '— ' + p.recipeName + ' (' + p.style + ')';
+    $('batch-servings').textContent = p.servings;
+    $('batch-volume').textContent = fmtMl(p.dilution.totalMl);
+    $('batch-abv').textContent = p.abv.abvAfter.toFixed(1) + '%';
+    $('batch-std').textContent = p.totalStdDrinks.toFixed(1);
+
+    $('dilution-note').innerHTML =
+      '<strong style="color:#FDE68A">💧 Dilution science:</strong> ' +
+      'your ' + fmtMl(p.scaled.totalLiquidMl) + ' of mixed ingredients gets ' +
+      '<strong>' + fmtMl(p.dilution.waterMl) + '</strong> of water added up front — ' +
+      p.dilution.dilPct.toFixed(0) + '% of the finished batch, exactly how ice melt would dilute it in the glass. ' +
+      'That drops the batch from <strong>' + p.abv.abvBefore.toFixed(1) + '%</strong> to <strong>' +
+      p.abv.abvAfter.toFixed(1) + '% ABV</strong>. Chill the batch hard and serve over fresh ice.';
+
+    var bd = $('ingredient-breakdown');
+    bd.innerHTML = '';
+    p.scaled.ingredients.forEach(function (ing) {
+      var row = document.createElement('div');
+      row.className = 'flex items-end gap-3 text-sm';
+      row.innerHTML =
+        '<span class="font-semibold" style="color:#F5E9F2">' + escapeHtml(ing.name) + '</span>' +
+        '<span class="flex-1 dotted-leader mb-1"></span>' +
+        '<span style="color:#C9AEC4">' + fmtMl(ing.ml) + ' <span style="color:#E879F9">(' + ing.abv + '%)</span></span>';
+      bd.appendChild(row);
+    });
+
+    var sl = $('shopping-list');
+    sl.innerHTML = '';
+    p.bottles.forEach(function (b) {
+      var row = document.createElement('div');
+      row.className = 'flex items-center gap-3 flex-wrap p-3 rounded-xl';
+      row.style.cssText = 'background:rgba(20,9,15,.55);border:1px solid rgba(232,121,249,.2)';
+      row.innerHTML =
+        '<div class="flex-1 min-w-[180px]"><div class="font-bold" style="color:#FDE68A">' + escapeHtml(b.label) + '</div>' +
+        '<div class="text-xs" style="color:#C9AEC4">need ' + fmtMl(b.totalMl) + ' · spare ' + fmtMl(b.wasteMl) + '</div></div>' +
+        '<label class="text-xs font-bold uppercase tracking-wider" style="color:#C9AEC4">Bottle price <span class="cur-sym">' + escapeHtml($('currency').value) + '</span></label>' +
+        '<input type="number" min="0" step="0.5" class="field price-input" style="max-width:130px" data-name="' + escapeHtml(b.name) + '" placeholder="0.00">';
+      sl.appendChild(row);
+    });
+    sl.querySelectorAll('.price-input').forEach(function (el) {
+      el.addEventListener('input', refreshCosts);
+    });
+
+    refreshCosts();
+    renderFlag(p);
+  }
+
+  function refreshCosts() {
+    var p = state.lastPlan;
+    if (!p) return;
+    var costs = costEstimate(p.bottles, readPrices(), p.servings, p.totalStdDrinks);
+    p.costs = costs;
+    $('total-cost').textContent = money(costs.totalCost);
+    $('cost-per-drink').textContent = money(costs.costPerServing);
+    $('cost-per-std').textContent = money(costs.costPerStdDrink);
+    renderPourCost();
+  }
+
+  function renderPourCost() {
+    var p = state.lastPlan;
+    if (!p) return;
+    var pc = pourCost(p.costs.costPerServing, Number($('menu-price').value));
+    $('pour-cost-pct').textContent = pc.pourCostPct.toFixed(1) + '%';
+    $('margin-pct').textContent = pc.marginPct.toFixed(1) + '%';
+    $('profit-per-drink').textContent = money(pc.profitPerDrink);
+    $('recommended-price').textContent = money(recommendedPrice(p.costs.costPerServing, Number($('target-pour').value)));
+  }
+
+  function renderFlag(p) {
+    var f = p.flag;
+    var card = $('serving-flag');
+    card.classList.remove('flag-green', 'flag-amber', 'flag-red');
+    card.classList.add('flag-' + f.level);
+    var badge = $('flag-badge');
+    var colors = { green: '#4ADE80', amber: '#FBBF24', red: '#F87171' };
+    badge.style.borderColor = colors[f.level];
+    badge.style.color = colors[f.level];
+    badge.textContent = f.level === 'green' ? '✓ Go ahead' : f.level === 'amber' ? '⚠ Pace it' : '🛑 Red flag';
+    $('flag-level').textContent = f.title;
+    $('flag-message').textContent = f.message;
+    $('flag-per-guest').textContent = f.drinksPerGuest.toFixed(1);
+    $('flag-pace').textContent = f.pacingHours + (f.pacingHours === 1 ? ' hour' : ' hours');
+    var tips = $('flag-tips');
+    tips.innerHTML = '';
+    f.tips.forEach(function (t) {
+      var li = document.createElement('li');
+      li.innerHTML = '<span style="color:#FDE68A">▸</span> ' + escapeHtml(t);
+      tips.appendChild(li);
+    });
+  }
+
+  function copyPlan() {
+    var p = state.lastPlan;
+    if (!p) return;
+    var lines = [
+      'PROOFPOUR BATCH PLAN — ' + p.recipeName,
+      p.guests + ' guests × ' + p.drinksPerGuest + ' drinks = ' + p.servings + ' servings',
+      'Batch volume: ' + fmtMl(p.dilution.totalMl) + ' (incl. ' + fmtMl(p.dilution.waterMl) + ' dilution water)',
+      'Batch ABV: ' + p.abv.abvAfter.toFixed(1) + '% · ' + p.totalStdDrinks.toFixed(1) + ' standard drinks',
+      '',
+      'SHOPPING LIST:'
+    ];
+    p.bottles.forEach(function (b) { lines.push('• ' + b.label); });
+    lines.push('', 'Batch cost: ' + money(p.costs.totalCost) + ' · ' + money(p.costs.costPerServing) + ' per drink');
+    lines.push('Serving flag: ' + p.flag.title + ' (' + p.flag.drinksPerGuest.toFixed(1) + ' std drinks/guest)');
+    var text = lines.join('\n');
+    function done(btn, msg) { var old = btn.textContent; btn.textContent = msg; setTimeout(function () { btn.textContent = old; }, 1600); }
+    var btn = $('copy-plan');
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(text).then(function () { done(btn, '✓ Copied'); }, function () { done(btn, 'Copy failed'); });
+    } else {
+      var ta = document.createElement('textarea');
+      ta.value = text; document.body.appendChild(ta); ta.select();
+      try { document.execCommand('copy'); done(btn, '✓ Copied'); } catch (e) { done(btn, 'Copy failed'); }
+      document.body.removeChild(ta);
+    }
+  }
+
+  /* ---------- events ---------- */
+  $('calc-btn').addEventListener('click', calculate);
+  $('copy-plan').addEventListener('click', copyPlan);
+  $('price-recalc').addEventListener('click', renderPourCost);
+  $('menu-price').addEventListener('input', renderPourCost);
+  $('target-pour').addEventListener('input', renderPourCost);
+  $('dilution').addEventListener('input', function () { $('dilution-val').textContent = this.value + '%'; });
+  $('custom-toggle').addEventListener('change', function () {
+    state.custom = this.checked;
+    $('custom-card').classList.toggle('hidden', !this.checked);
+    if (this.checked && !$('custom-ingredients').children.length) {
+      addIngredientRow('White rum', 40, 50);
+      addIngredientRow('Fresh lime juice', 0, 25);
+      addIngredientRow('Simple syrup', 0, 15);
+    }
+    renderRecipes();
+  });
+  $('add-ingredient').addEventListener('click', function () { addIngredientRow('', '', ''); });
+  $('currency').addEventListener('change', function () {
+    document.querySelectorAll('.cur-sym').forEach(function (el) { el.textContent = $('currency').value; });
+    refreshCosts();
+  });
+
+  renderRecipes();
+})();
+</script>
+
+<!-- BOTTOM AD (verbatim) -->
+<div class="no-print mx-auto max-w-6xl px-4 sm:px-6 pb-4" role="complementary" aria-label="Advertisement">
+  <div class="mx-auto text-center" style="max-width:728px">
+    <span class="block text-[10px] tracking-[0.18em] uppercase text-slate-400 mb-1.5">Advertisement</span>
+    <div class="flex justify-center overflow-hidden">
+      <script async src="https://js.wpadmngr.com/static/adManager.js" data-admpid="464498"></script>
+    </div>
+  </div>
+</div>
+
+<!-- ============ SEO ARTICLE ============ -->
+<article class="article mx-auto max-w-4xl px-4 sm:px-6 py-10">
+  <h2>The Complete Guide to Batching Cocktails for a Party</h2>
+  <p>There is a special kind of panic that sets in about forty minutes before guests arrive: the ice is melting in the wrong bowl, somebody asked for a cocktail you have never made, and you are suddenly the slowest bartender on earth, shaking one drink at a time while a line forms in your kitchen. A <strong>cocktail batch calculator</strong> exists to kill that panic. Batching — mixing a whole party's worth of cocktails in advance, in one vessel — is the oldest trick in professional bartending, and it is the single highest-leverage skill a home host can learn. This guide walks through the science, the math, and the planning behind perfect party batches: the famous 20% dilution rule, how a cocktail ABV calculator actually works, how to write a bottle shopping list that never leaves you short, what pour cost means for your wallet, and how to keep the evening responsible.</p>
+
+  <h2>Why Batching Beats Shaking One Drink at a Time</h2>
+  <p>Batching is not a modern shortcut; it is the original cocktail. Long before the cocktail shaker existed, punch — a batched drink by definition — ruled the 17th and 18th century drinking world. Sailors, merchants, and gentlemen's clubs mixed spirits, citrus, sugar, water, and spice in giant bowls because it was the only practical way to serve a crowd. The single-serve shaken cocktail is the historical newcomer. When you batch, you are returning to the roots of mixed drinks, and you gain three enormous advantages: consistency (every guest gets the identical, dialed-in drink), speed (pour over ice and garnish — service takes seconds), and calm (you actually get to enjoy your own party). Professional bars batch for the same reasons: a bar that pre-batches its high-volume cocktails can serve three times the guests with the same staff, and every drink tastes exactly as the head bartender designed it.</p>
+  <p>The catch is that a batched cocktail is not simply a big single cocktail. Ice behaves differently at scale, citrus fades with time, carbonation cannot be batched, and dilution — the silent ingredient in every great drink — has to be engineered rather than hoped for. Get these details right and your batch will taste better than most bar-made singles. Get them wrong and you will serve a flat, warm, unbalanced punch bowl that everyone politely avoids.</p>
+
+  <h2>The 20% Dilution Rule: The Science of Ice Melt</h2>
+  <p>Every shaken or stirred cocktail you have ever loved was about one-fifth water. When a bartender shakes a Daiquiri with ice for twelve seconds, roughly 20 to 25 percent of the finished drink's volume is melted ice water. That water is not a flaw — it is an ingredient. It softens the alcoholic burn, opens up aromatics, drops the temperature, and balances sweetness and acidity. A cocktail mixed without any dilution tastes hot, harsh, and disjointed; the same recipe with proper dilution tastes round, integrated, and refreshing.</p>
+  <p>Here is the problem for batching: if you mix twenty servings in a pitcher and refrigerate it, there is no ice doing that work. Serve it over fresh ice and each glass dilutes differently depending on how long it sits. The professional solution, popularized by modern cocktail science writers, is the <strong>20% dilution rule</strong>: calculate 20% of your total mixed volume and add that much filtered water to the batch <em>before</em> chilling. Mathematically, if your mixed ingredients total 3.6 liters, you add 0.9 liters of water — because 0.9 is 20% of the finished 4.5 liters. Notice the counterintuitive bit: adding 20% water increases your total volume by 25% (3.6 × 1.25 = 4.5). That is the number to remember when sizing pitchers and bottles.</p>
+  <p>The rule is a starting point, not scripture. Spirit-forward stirred drinks like a Negroni or Manhattan love the full 20%. Bright shaken drinks like Margaritas and Daiquiris are happy between 20 and 25%. Built highballs such as a Gin &amp; Tonic or Moscow Mule — drinks normally served over lots of ice in a tall glass — need little or no pre-dilution, because the ice in the serving glass does the job; batch the concentrated base instead and top with the carbonated mixer to order. Never batch carbonation itself: soda, tonic, prosecco, and ginger beer go flat within hours and should always be added at service. ProofPour's dilution slider lets you dial this per recipe style, defaulting to the classic 20%.</p>
+
+  <h2>Scaling Math: From One Glass to Forty</h2>
+  <p>Scaling a recipe is multiplication, but smart scaling has a few wrinkles. First, pick your serving size deliberately. A "classic pour" in most recipe books is calibrated to a standard rocks or coupe glass; a tasting pour (about 0.6×) is perfect for cocktail flights or long evenings where guests will try several drinks, while a generous pour (1.5×) suits tall, refreshing, lower-ABV serves. Multiply every ingredient by the same factor — ratios are sacred — then multiply by guests times drinks per guest. Always round your final purchase quantities <em>up</em>; running out of gin at 10 p.m. is a party-ending event, while a half bottle of leftover Campari is a gift to your future self.</p>
+  <p>Second, build in a buffer. Professional event planners assume 10 to 15 percent overage for spillage, enthusiastic pouring, and the friend who brings two unannounced plus-ones. In practice, setting "drinks per guest" slightly above your honest estimate — say 2.5 instead of 2 for a four-hour evening — covers this gracefully. Third, think in vessels: know your pitcher, dispenser, or bottle capacity before you shop. A 4.5-liter batch does not fit in a 3-liter dispenser, and discovering that at midnight is a special kind of sorrow. Our planner shows total batch volume precisely so you can match it to the containers you own.</p>
+
+  <h2>How a Cocktail ABV Calculator Works</h2>
+  <p>ABV — alcohol by volume — is the number that tells you how strong a drink really is, and a <strong>cocktail ABV calculator</strong> computes it with one clean formula: add up the pure alcohol contributed by each ingredient (milliliters × ABV ÷ 100), then divide by the total volume of the drink and multiply by 100. Take a classic Negroni: 30 ml of gin at 40% gives 12 ml of pure alcohol, 30 ml of Campari at 25% gives 7.5 ml, and 30 ml of sweet vermouth at 18% gives 5.4 ml. That is 24.9 ml of alcohol in 90 ml of liquid — 27.7% ABV before dilution. Add the 20% dilution water (22.5 ml), and the served ABV drops to 22.1%. Same flavor architecture, noticeably gentler landing.</p>
+  <p>Why does this matter for a party? Because ABV is invisible. A sweet, fruity punch at 18% ABV drinks like juice and floors people twice as fast as a bitter, spiritous cocktail at the same strength — perceived strength and actual strength are different things. Knowing the real number lets you sequence a menu honestly: start the evening with lower-ABV aperitivo-style batches (a Spritz at 9% is a perfect opener), move to mid-strength classics, and keep the 30%-plus bruisers for the nightcap slot — or skip them entirely. It also lets you answer the most responsible question a host can ask: how many <em>standard drinks</em> am I actually serving?</p>
+
+  <h2>Standard Drinks: The Only Honest Serving Metric</h2>
+  <p>A "drink" is not a drink. A 90 ml Negroni and a 210 ml Gin &amp; Tonic are both "one cocktail," but the Negroni carries roughly 1.4 US standard drinks of alcohol while the G&amp;T carries about 1.1. A standard drink is a fixed mass of pure alcohol — 14 grams in the United States, 10 grams in Australia, 8 grams (one "unit") in the United Kingdom — which converts to about 17.7 ml of pure ethanol in the US system. Our <strong>party drink planner servings</strong> math converts your whole batch into standard drinks so you can plan like a public-health professional rather than guessing.</p>
+  <p>The guideline most health authorities converge on: keep it to around 2 standard drinks per guest for a comfortable social evening, treat 2 to 4 as the "pace it" zone with water and food, and recognize anything above 4 per guest in a single session as binge-level territory. Your liver metabolizes roughly one standard drink per hour — coffee, cold air, and willpower do not speed this up. A good host plans the evening's arc around this clock: 2.5 standard drinks per guest across a four-hour party with dinner is a delightful evening; the same amount in ninety minutes on empty stomachs is a disaster. The responsible-serving flag in the planner above turns these thresholds into a plain-English verdict for your specific plan.</p>
+
+  <h2>Writing a Bottle Shopping List That Never Fails</h2>
+  <p>Converting "I need 1,200 ml of gin" into "buy 2 × 750 ml bottles" sounds trivial until you are standing in a liquor store doing mental arithmetic for six ingredients. The rule is simple: find the smallest standard bottle size that covers what you need, and when no single bottle covers it, divide by 750 ml and always round up. A 1,600 ml requirement becomes three 750 ml bottles, not two — the 200 ml shortfall is exactly the amount that ruins the last six servings. Standard retail sizes in most markets are 375 ml (half bottle), 750 ml (the workhorse "fifth"), 1 liter, and 1.75 liters (the "handle"). Handles look economical but check the per-liter price; the 750 ml size is very often the cheapest per milliliter because it is the highest-volume SKU in the store.</p>
+  <p>Three pro tips for the shopping trip. First, buy mixers and juices with the same seriousness as spirits — running out of fresh lime juice mid-party is just as fatal as running out of rum, and citrus cannot be improvised. Second, remember that opened vermouth, like wine, oxidizes: buy the 375 ml bottle for a single party rather than a liter you will pour down the drain in a month. Third, price-compare across two stores if your batch is large; on a 40-person batch the difference between shelf prices can exceed the cost of an entire extra bottle. Enter your actual shelf prices into the planner and it will cost the whole batch line by line.</p>
+
+  <h2>Pour Cost: The Economics of Every Glass</h2>
+  <p>Pour cost is the lingua franca of bar economics: the cost of the liquid in the glass divided by the price you charge for it, expressed as a percentage. A cocktail that costs $1.50 to make and sells for $7.50 runs a 20% pour cost — the industry's classic target for cocktails, which typically aim for 18 to 24%. Beer and wine run lower; labor-heavy craft cocktails sometimes run higher. Even if you are not selling a single drink, pour cost thinking makes you a smarter host: it tells you which cocktails are secretly expensive (anything with three premium spirits and fresh citrus) and which are crowd-pleasing bargains (highballs stretch one spirit across a lot of inexpensive mixer).</p>
+  <p>To compute it at home, cost each ingredient from its bottle price: a $30 bottle of gin holding 750 ml costs $0.04 per ml, so a 30 ml pour costs $1.20. Sum every ingredient in one serving, add a few cents for citrus and garnish, and you have your true cost per drink. Divide by your target pour-cost percentage to get the menu price that hits your margin — $1.50 at a 20% target prices at $7.50. For ticketed events, fundraisers, or pop-up bars, this arithmetic is the difference between a profitable night and an expensive hobby. The margin calculator above runs all of it instantly once you enter bottle prices.</p>
+
+  <h2>Batching Technique: The Details That Separate Good from Great</h2>
+  <p>Great batches are built on a handful of technique rules. <strong>Chill everything aggressively.</strong> A batch served at proper temperature needs less ice in the glass, which means less uncontrolled dilution at service. Mix your batch the night before and refrigerate it; cold liquid also integrates flavors — a Negroni batch rested overnight tastes rounder than one mixed an hour ago. <strong>Time your citrus.</strong> Fresh lime and lemon juice are at their peak for about 8 hours and fade noticeably after 24; for a Saturday party, juice Saturday morning, not Friday night. Some bartenders add a tiny pinch of salt or a few drops of saline solution to batched citrus drinks — it suppresses bitterness as the juice ages. <strong>Strain out anything that keeps infusing.</strong> Muddled herbs, cucumber, and fresh fruit continue to extract and can turn bitter or vegetal overnight; infuse, taste, then strain before the long rest. <strong>Carbonate at service, always.</strong> Build the still base in bulk, then top each glass with chilled soda, tonic, or prosecco to order — or use a countertop carbonator if you are batching spritzes. <strong>Label and garnish with intent.</strong> A small menu card naming the cocktail, its ABV, and its ingredients looks professional and quietly helps guests pace themselves — and it keeps your one friend with the Campari allergy safe.</p>
+
+  <h2>A Worked Example: Negroni Night for Twenty</h2>
+  <p>Let us put the whole system together. Twenty guests, two drinks each, classic pours of Negroni. Forty servings at 90 ml each is 3.6 liters of mixed ingredients: 1.2 liters each of gin, Campari, and sweet vermouth. The 20% dilution rule adds 0.9 liters of water for a finished batch of 4.5 liters — a 25% volume increase to plan vessels around. Batch ABV settles at 22.1% after dilution. In standard drinks, that is about 56 US standard drinks total, or 2.8 per guest: amber zone, so you plan a four-hour evening with dinner, water on every table, and rides arranged. The shopping list: 1.2 liters of gin becomes two 750 ml bottles (1.5 liters, 300 ml spare for the host's quality-control tasting), and the same for Campari and vermouth — though you would buy the vermouth in 375 ml bottles if you will not use the rest soon. If the gin costs $28 a bottle, the gin in each drink costs $1.12; with Campari and vermouth the all-in liquid cost lands near $2.60 per serving, which prices at $13 for a 20% pour cost — or simply tells you the party costs about $104 in spirits. That is the entire plan, computed in seconds, and it is exactly what the calculator above produces for any recipe you throw at it.</p>
+
+  <h2>Drink Responsibly — The Host's Real Job</h2>
+  <p>The unglamorous truth is that the host is the evening's safety officer. Set the tone early: put water everywhere, serve substantial food before the second round, and never let an empty stomach meet a strong batch. Arrange transportation before the first pour — designated drivers, ride-share credit, or simply spare beds — because nobody makes good transport decisions at midnight. Check IDs if the crowd skews young; the legal drinking age is 21 in the US and varies elsewhere, and "it's a private party" is not a legal shield everywhere. Watch for the quiet guests who match the group's pace drink-for-drink without the tolerance for it, and normalize the graceful exit: "I'm switching to water" should be the easiest sentence of the night. A great party is one everyone remembers fondly — and that is, quite literally, a planning problem. Plan the servings, respect the math, and pour with care.</p>
+</article>
+
+<!-- ============ FAQS ============ -->
+<section class="mx-auto max-w-4xl px-4 sm:px-6 pb-12">
+  <h2 class="font-menu text-2xl sm:text-3xl mb-6 text-center" style="color:#FDE68A">Frequently asked questions</h2>
+  <div class="space-y-3">
+    <details class="faq">
+      <summary>How does the 20% dilution rule work in a cocktail batch calculator?</summary>
+      <p class="mt-2 text-sm leading-relaxed" style="color:#EADCE6">A properly shaken or stirred cocktail ends up about 20% water by volume from ice melt. When you batch, there is no ice doing that work, so a cocktail batch calculator adds the water up front: water = mixed volume × 0.20 ÷ 0.80. For 3.6 L of mixed ingredients that means 0.9 L of water, giving a 4.5 L finished batch — a 25% volume increase. This keeps the batch tasting exactly like the single-serve original instead of harsh and over-strong.</p>
+    </details>
+    <details class="faq">
+      <summary>How do I calculate the ABV of a batched cocktail?</summary>
+      <p class="mt-2 text-sm leading-relaxed" style="color:#EADCE6">Use the weighted-average formula: sum each ingredient's (ml × ABV ÷ 100) to get total pure alcohol, divide by total batch volume, and multiply by 100. Our cocktail ABV calculator does this automatically and shows ABV both before and after dilution water is added — for example a Negroni drops from 27.7% to 22.1% ABV once the 20% dilution water goes in.</p>
+    </details>
+    <details class="faq">
+      <summary>How many servings will my batch make for my party?</summary>
+      <p class="mt-2 text-sm leading-relaxed" style="color:#EADCE6">Servings = guests × drinks per guest, adjusted by your pour size (tasting 0.6×, classic 1×, generous 1.5×). A party drink planner for servings should also add 10–15% buffer for spillage and plus-ones — setting drinks per guest slightly above your honest estimate handles this. The planner shows servings, total batch volume, and standard-drink counts together so nothing is a guess.</p>
+    </details>
+    <details class="faq">
+      <summary>How many bottles do I need to buy for a party batch?</summary>
+      <p class="mt-2 text-sm leading-relaxed" style="color:#EADCE6">Convert each ingredient's total milliliters into bottles by taking the smallest standard size (375 ml, 750 ml, 1 L, 1.75 L) that covers it — and when no single bottle covers it, divide by 750 ml and always round up. The shopping list generator applies this per ingredient, so 1,200 ml of gin becomes "2 × 750 ml bottles" and you never run dry mid-party.</p>
+    </details>
+    <details class="faq">
+      <summary>What is pour cost, and what margin should I target?</summary>
+      <p class="mt-2 text-sm leading-relaxed" style="color:#EADCE6">Pour cost = liquid cost per drink ÷ menu price × 100. Bars typically target 18–24% pour cost on cocktails (76–82% gross margin). Enter your bottle prices to get true cost per drink, then divide by your target percentage to find the menu price — a $1.50 drink at 20% target prices at $7.50. Even for free home parties, pour-cost thinking reveals which cocktails are secretly expensive.</p>
+    </details>
+    <details class="faq">
+      <summary>How many standard drinks per guest is too many?</summary>
+      <p class="mt-2 text-sm leading-relaxed" style="color:#EADCE6">Up to 2 standard drinks per guest (14 g alcohol each in the US system) is a comfortable social pace; 2–4 is the "pace it" zone needing water, food, and time; above 4 per guest in one session is binge-level territory. The body metabolizes roughly one standard drink per hour. The responsible-serving flag scores your exact plan against these thresholds and suggests a pacing window.</p>
+    </details>
+  </div>
+</section>
+
+<!-- JSON-LD FAQPage -->
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "How does the 20% dilution rule work in a cocktail batch calculator?",
+      "acceptedAnswer": { "@type": "Answer", "text": "A shaken or stirred cocktail is about 20% water by volume from ice melt. A cocktail batch calculator adds that water up front: water = mixed volume × 0.20 ÷ 0.80, so 3.6 L of mix plus 0.9 L of water yields a 4.5 L finished batch — a 25% volume increase that keeps the batch tasting like the single-serve original." }
+    },
+    {
+      "@type": "Question",
+      "name": "How do I calculate the ABV of a batched cocktail?",
+      "acceptedAnswer": { "@type": "Answer", "text": "Sum each ingredient's (ml × ABV ÷ 100) for total pure alcohol, divide by total batch volume, and multiply by 100. A cocktail ABV calculator shows ABV before and after dilution — e.g. a Negroni drops from 27.7% to 22.1% ABV once 20% dilution water is added." }
+    },
+    {
+      "@type": "Question",
+      "name": "How many servings will my batch make for my party?",
+      "acceptedAnswer": { "@type": "Answer", "text": "Servings = guests × drinks per guest, adjusted by pour size (tasting 0.6×, classic 1×, generous 1.5×), plus a 10–15% buffer for spillage and plus-ones. A party drink planner for servings should show servings, batch volume, and standard-drink counts together." }
+    },
+    {
+      "@type": "Question",
+      "name": "How many bottles do I need to buy for a party batch?",
+      "acceptedAnswer": { "@type": "Answer", "text": "Take the smallest standard bottle size (375 ml, 750 ml, 1 L, 1.75 L) covering each ingredient's total milliliters; when none covers it, divide by 750 ml and round up. So 1,200 ml of gin becomes 2 × 750 ml bottles." }
+    },
+    {
+      "@type": "Question",
+      "name": "What is pour cost, and what margin should I target?",
+      "acceptedAnswer": { "@type": "Answer", "text": "Pour cost = liquid cost per drink ÷ menu price × 100. Bars target 18–24% pour cost on cocktails. A $1.50 drink at a 20% target prices at $7.50 per serving." }
+    },
+    {
+      "@type": "Question",
+      "name": "How many standard drinks per guest is too many?",
+      "acceptedAnswer": { "@type": "Answer", "text": "Up to 2 standard drinks per guest is a comfortable pace; 2–4 needs pacing with water and food; above 4 per guest in one session is binge-level territory. The body metabolizes roughly one standard drink per hour." }
+    }
+  ]
+}
+</script>
+
+<!-- FOOTER -->
+<footer class="no-print border-t mt-4" style="border-color:rgba(232,121,249,.25);background:#0E060C">
+  <div class="mx-auto max-w-6xl px-4 sm:px-6 py-8 flex flex-col sm:flex-row items-center justify-between gap-4">
+    <div class="font-menu text-xl" style="color:#E879F9">🍸 ProofPour</div>
+    <p class="text-xs text-center" style="color:#C9AEC4">Batch smart, pour with care, and always drink responsibly.<br>© 2026 ProofPour. Free for unlimited personal and party use.</p>
+    <nav class="flex items-center gap-5 text-sm font-bold">
+      <a href="#top" class="hover:underline" style="color:#F5E9F2">Home</a>
+      <a href="https://fixoraa.tech" class="hover:underline" style="color:#FDE68A">More Tools</a>
+    </nav>
+  </div>
+</footer>
+</body>
+</html>
